@@ -17,6 +17,27 @@ export default function TileGame() {
 		return `${mins}:${secs.toString().padStart(2, "0")}`;
 	};
 
+	const startGame = () => {
+		setGameState("playing");
+		setTimeLeft(TOTAL_TIME);
+		setScore(0);
+	};
+
+	// Timer
+	useEffect(() => {
+		if (timeLeft <= 0) return;
+		const timer = setInterval(() => {
+			setTimeLeft((prev) => prev - 1);
+		}, 1000);
+
+		return () => clearInterval(timer);
+	}, [timeLeft]);
+
+	// Start the game on mount
+	useEffect(() => {
+		startGame();
+	}, []);
+
 	return (
 		<div className="min-h-screen flex items-center justify-center p-4">
 			<div className="bg-red-900 rounded-2xl shadow-2xl p-6 max-w-sm w-full">
