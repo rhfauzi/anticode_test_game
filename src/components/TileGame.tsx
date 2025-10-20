@@ -150,6 +150,93 @@ export default function TileGame() {
 						Total: {score}
 					</div>
 				</div>
+
+				{/* Control Buttons */}
+				<div className="mt-30">
+					{/* Arrow Controls */}
+					<div className="flex flex-col items-center space-y-2">
+						{/* Up Button */}
+						<button
+							onClick={() => movePlayer(0, -1)}
+							disabled={gameState !== "playing"}
+							className="w-15 h-11 bg-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-300  disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-b-4 border-neutral-900 drop-shadow-xl shadow-yellow-400"
+						>
+							<svg
+								className="w-6 h-6 stroke-white"
+								fill="none"
+								viewBox="0 0 24 20"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M5 15l7-7 7 7"
+								/>
+							</svg>
+						</button>
+
+						{/* Middle Row */}
+						<div className="flex space-x-3">
+							<button
+								onClick={() => movePlayer(-1, 0)}
+								disabled={gameState !== "playing"}
+								className="w-15 h-11 bg-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-b-4 border-neutral-900"
+							>
+								<svg
+									className="w-6 h-6 stroke-white"
+									fill="none"
+									viewBox="0 0 24 24"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M15 19l-7-7 7-7"
+									/>
+								</svg>
+							</button>
+							<div className="w-12 h-12"></div>
+							<button
+								onClick={() => movePlayer(1, 0)}
+								disabled={gameState !== "playing"}
+								className="w-15 h-11 bg-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-b-4 border-neutral-900"
+							>
+								<svg
+									className="w-6 h-6 stroke-white"
+									fill="none"
+									viewBox="0 0 24 24"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M9 5l7 7-7 7"
+									/>
+								</svg>
+							</button>
+						</div>
+
+						{/* Down Button */}
+						<button
+							onClick={() => movePlayer(0, 1)}
+							disabled={gameState !== "playing"}
+							className="w-15 h-11 bg-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-b-4 border-neutral-900"
+						>
+							<svg
+								className="w-6 h-6 stroke-white"
+								fill="none"
+								viewBox="0 0 24 24"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M19 9l-7 7-7-7"
+								/>
+							</svg>
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
