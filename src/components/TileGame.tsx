@@ -155,7 +155,7 @@ export default function TileGame() {
 						return (
 							<div
 								key={index}
-								className={`aspect-square border-2 border-black ${bgColor}`}
+								className={`aspect-square border-1 border-black ${bgColor}`}
 							/>
 						);
 					})}
