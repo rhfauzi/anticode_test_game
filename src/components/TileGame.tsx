@@ -89,12 +89,6 @@ export default function TileGame() {
 					e.preventDefault();
 					movePlayer(1, 0);
 					break;
-				case " ":
-					e.preventDefault();
-					if (gameState === "idle" || gameState === "finished") {
-						startGame();
-					}
-					break;
 				default:
 					break;
 			}
