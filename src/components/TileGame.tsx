@@ -26,8 +26,11 @@ export default function TileGame() {
 		};
 
 		const isBlocked = isPositionBlocked(newPosition.x, newPosition.y);
+		// check if target position is same as player position
+		const isPositionSame =
+			playerPosition.x === newPosition.x && playerPosition.y === newPosition.y;
 
-		if (!isBlocked) {
+		if (!isBlocked && !isPositionSame) {
 			return newPosition;
 		} else {
 			return generateRandomPosition();
@@ -61,6 +64,8 @@ export default function TileGame() {
 				// Update player position
 				setPlayerPosition(newPos);
 			}
+		} else {
+			return;
 		}
 	};
 
