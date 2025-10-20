@@ -132,8 +132,8 @@ export default function TileGame() {
 	}, []);
 
 	return (
-		<div className="h-screen flex items-center justify-center">
-			<div className="bg-red-900 rounded-2xl shadow-2xl p-6 max-w-sm w-full">
+		<div className="h-screen flex items-center justify-center relative ">
+			<div className="bg-red-900 rounded-2xl p-6 max-w-sm w-full">
 				{/* Game Grid - 6x6 */}
 				<div className="grid grid-cols-6 gap-0 mb-3">
 					{Array.from({ length: GRID_SIZE * GRID_SIZE }).map((_, index) => {
@@ -257,6 +257,25 @@ export default function TileGame() {
 						</button>
 					</div>
 				</div>
+
+				{gameState === "finished" && (
+					<div className="fixed inset-0 bg-[#0000008c] flex items-center justify-center z-50 p-4 w-full">
+						<div className="bg-white p-8 text-center max-w-[345px] w-full">
+							<p className="text-black-700 text-[20px] font-bold">
+								Your Points: {score}
+							</p>
+
+							<div className="flex justify-center items-center mt-4">
+								<button
+									onClick={startGame}
+									className=" bg-red-500 text-white py-3 rounded-lg font-semibold flex items-center justify-center space-x-2 hover:bg-red-600 transition-colors px-[50px]"
+								>
+									<span>Retry</span>
+								</button>
+							</div>
+						</div>
+					</div>
+				)}
 			</div>
 		</div>
 	);
