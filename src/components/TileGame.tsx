@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 
 const GRID_SIZE = 6;
 const TOTAL_TIME = 60;
+const BLOCKED_GRID = ["1,1", "1,2", "1,4", "2,1", "3,1", "4,1", "4,3", "4,4"];
 
 export default function TileGame() {
 	const [gameState, setGameState] = useState("idle");
@@ -19,10 +20,18 @@ export default function TileGame() {
 
 	// Generate random position
 	const generateRandomPosition = useCallback(() => {
-		return {
+		const newPosition = {
 			x: Math.floor(Math.random() * GRID_SIZE),
 			y: Math.floor(Math.random() * GRID_SIZE),
 		};
+
+		const isBlocked = isPositionBlocked(newPosition.x, newPosition.y);
+
+		if (!isBlocked) {
+			return newPosition;
+		} else {
+			return generateRandomPosition();
+		}
 	}, []);
 
 	const startGame = () => {
@@ -42,14 +51,17 @@ export default function TileGame() {
 
 				const newPos = { x: newX, y: newY };
 
-				// Check if player reached target
-				if (newX === targetPosition.x && newY === targetPosition.y) {
-					setScore((prev) => prev + 1);
-					setTargetPosition(generateRandomPosition());
-				}
+				// Check if the target position is blocked
+				if (!isPositionBlocked(newX, newY)) {
+					// Check if player reached target
+					if (newX === targetPosition.x && newY === targetPosition.y) {
+						setScore((prev) => prev + 1);
+						setTargetPosition(generateRandomPosition());
+					}
 
-				// Update player position
-				setPlayerPosition(newPos);
+					// Update player position
+					setPlayerPosition(newPos);
+				}
 			}
 		},
 		[gameState, playerPosition, targetPosition, generateRandomPosition]
@@ -90,6 +102,11 @@ export default function TileGame() {
 		return () => window.removeEventListener("keydown", handleKeyPress);
 	}, [movePlayer, gameState]);
 
+	// Check if a position is blocked
+	const isPositionBlocked = useCallback((x: number, y: number) => {
+		return BLOCKED_GRID.includes(`${x},${y}`);
+	}, []);
+
 	// Timer
 	useEffect(() => {
 		let interval: any;
@@ -124,9 +141,12 @@ export default function TileGame() {
 						const y = Math.floor(index / GRID_SIZE);
 						const isPlayer = x === playerPosition.x && y === playerPosition.y;
 						const isTarget = x === targetPosition.x && y === targetPosition.y;
+						const isBlocked = isPositionBlocked(x, y);
 
 						let bgColor = "bg-white";
-						if (isPlayer) {
+						if (isBlocked) {
+							bgColor = "cursor-not-allowed border-none";
+						} else if (isPlayer) {
 							bgColor = "bg-blue-500";
 						} else if (isTarget) {
 							bgColor = "bg-yellow-500";
