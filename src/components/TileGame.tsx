@@ -11,12 +11,13 @@ export default function TileGame() {
 	const [playerPosition, setPlayerPosition] = useState({ x: 0, y: 0 });
 	const [targetPosition, setTargetPosition] = useState({ x: 4, y: 4 });
 
-	const formatTime = (seconds) => {
+	const formatTime = (seconds: number) => {
 		const mins = Math.floor(seconds / 60);
 		const secs = seconds % 60;
 		return `${mins}:${secs.toString().padStart(2, "0")}`;
 	};
 
+	// Generate random position
 	const generateRandomPosition = useCallback(() => {
 		return {
 			x: Math.floor(Math.random() * GRID_SIZE),
@@ -34,23 +35,29 @@ export default function TileGame() {
 
 	// Fungsi untuk menggerakkan player / set new player position
 	const movePlayer = useCallback(
-		(dx, dy) => {
-			if (gameState !== "playing") return;
+		(x: number, y: number) => {
+			if (gameState === "playing") {
+				const newX = Math.max(0, Math.min(GRID_SIZE - 1, playerPosition.x + x));
+				const newY = Math.max(0, Math.min(GRID_SIZE - 1, playerPosition.y + y));
 
-			const newX = Math.max(0, Math.min(GRID_SIZE - 1, playerPosition.x + dx));
-			const newY = Math.max(0, Math.min(GRID_SIZE - 1, playerPosition.y + dy));
+				const newPos = { x: newX, y: newY };
 
-			const newPos = { x: newX, y: newY };
+				// Check if player reached target
+				if (newX === targetPosition.x && newY === targetPosition.y) {
+					setScore((prev) => prev + 1);
+					setTargetPosition(generateRandomPosition());
+				}
 
-			// Update states
-			setPlayerPosition(newPos);
+				// Update player position
+				setPlayerPosition(newPos);
+			}
 		},
 		[gameState, playerPosition, targetPosition, generateRandomPosition]
 	);
 
 	// Fungsi untuk menggerakkan player dengan keyboard arrow
 	useEffect(() => {
-		const handleKeyPress = (e) => {
+		const handleKeyPress = (e: KeyboardEvent) => {
 			switch (e.key) {
 				case "ArrowUp":
 					e.preventDefault();
@@ -83,35 +90,36 @@ export default function TileGame() {
 		return () => window.removeEventListener("keydown", handleKeyPress);
 	}, [movePlayer, gameState]);
 
-	// useEffect(() => {
-	// 	if (timeLeft <= 0) return;
-	// 	const timer = setInterval(() => {
-	// 		setTimeLeft((prev) => prev - 1);
-	// 	}, 1000);
-
-	// useEffect(() => {
-	// 	if (timeLeft <= 0) return;
-	// 	const timer = setInterval(() => {
-	// 		setTimeLeft((prev) => prev - 1);
-	// 	}, 1000);
-
-	// 	return () => clearInterval(timer);
-	// }, [timeLeft]);
+	// Timer
+	useEffect(() => {
+		let interval: any;
+		if (gameState === "playing" && timeLeft > 0) {
+			interval = setInterval(() => {
+				setTimeLeft((prev) => {
+					if (prev <= 1) {
+						setGameState("finished");
+						return 0;
+					}
+					return prev - 1;
+				});
+			}, 1000);
+		}
+		return () => {
+			if (interval) clearInterval(interval);
+		};
+	}, [gameState, timeLeft]);
 
 	// Start the game on mount
 	useEffect(() => {
-		console.log("111111111111");
 		startGame();
-		console.log("playerPosition", playerPosition);
-		console.log("targetPosition", targetPosition);
 	}, []);
 
 	return (
-		<div className="min-h-screen flex items-center justify-center p-4">
+		<div className="h-screen flex items-center justify-center">
 			<div className="bg-red-900 rounded-2xl shadow-2xl p-6 max-w-sm w-full">
 				{/* Game Grid - 6x6 */}
 				<div className="grid grid-cols-6 gap-0 mb-3">
-					{Array.from({ length: 36 }).map((_, index) => {
+					{Array.from({ length: GRID_SIZE * GRID_SIZE }).map((_, index) => {
 						const x = index % GRID_SIZE;
 						const y = Math.floor(index / GRID_SIZE);
 						const isPlayer = x === playerPosition.x && y === playerPosition.y;
@@ -127,11 +135,7 @@ export default function TileGame() {
 						return (
 							<div
 								key={index}
-								className={`
-                  aspect-square transition-all duration-200 border-2 border-black
-                  ${bgColor}
-                  ${isPlayer ? "shadow-lg" : ""}
-                `}
+								className={`aspect-square border-2 border-black ${bgColor}`}
 							/>
 						);
 					})}
