@@ -11,19 +11,27 @@ export default function TileGame() {
 	const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
 	const [targetPos, setTargetPos] = useState({ x: 4, y: 4 });
 
-	const formatTime = (seconds) => {
+	const formatTime = (seconds: number) => {
 		const mins = Math.floor(seconds / 60);
 		const secs = seconds % 60;
 		return `${mins}:${secs.toString().padStart(2, "0")}`;
 	};
 
+	const generateRandomPosition = useCallback(() => {
+		return {
+			x: Math.floor(Math.random() * GRID_SIZE),
+			y: Math.floor(Math.random() * GRID_SIZE),
+		};
+	}, []);
+
 	const startGame = () => {
 		setGameState("playing");
 		setTimeLeft(TOTAL_TIME);
 		setScore(0);
+		setPlayerPos({ x: 0, y: 0 });
+		setTargetPos(generateRandomPosition());
 	};
 
-	// Timer
 	useEffect(() => {
 		if (timeLeft <= 0) return;
 		const timer = setInterval(() => {
@@ -35,7 +43,10 @@ export default function TileGame() {
 
 	// Start the game on mount
 	useEffect(() => {
+		console.log("111111111111");
 		startGame();
+		console.log("playerPos", playerPos);
+		console.log("targetPos", targetPos);
 	}, []);
 
 	return (
@@ -43,14 +54,30 @@ export default function TileGame() {
 			<div className="bg-red-900 rounded-2xl shadow-2xl p-6 max-w-sm w-full">
 				{/* Game Grid - 6x6 */}
 				<div className="grid grid-cols-6 gap-0 mb-3">
-					{Array.from({ length: 36 }).map((_, i) => (
-						<div
-							key={i}
-							className="aspect-square flex items-center justify-center bg-white border border-gray-200 text-sm font-medium select-none hover:scale-105 transform transition"
-						>
-							{i + 1}
-						</div>
-					))}
+					{Array.from({ length: 36 }).map((_, index) => {
+						const x = index % GRID_SIZE;
+						const y = Math.floor(index / GRID_SIZE);
+						const isPlayer = x === playerPos.x && y === playerPos.y;
+						const isTarget = x === targetPos.x && y === targetPos.y;
+
+						let bgColor = "bg-white";
+						if (isPlayer) {
+							bgColor = "bg-blue-500";
+						} else if (isTarget) {
+							bgColor = "bg-yellow-500";
+						}
+
+						return (
+							<div
+								key={index}
+								className={`
+                  aspect-square transition-all duration-200 border-2 border-black
+                  ${bgColor}
+                  ${isPlayer ? "shadow-lg" : ""}
+                `}
+							/>
+						);
+					})}
 				</div>
 
 				{/* Timer and Score */}
