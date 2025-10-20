@@ -19,20 +19,29 @@ export default function TileGame() {
 	};
 
 	// Generate random position
-	const generateRandomPosition = useCallback(() => {
-		const newPosition = {
-			x: Math.floor(Math.random() * GRID_SIZE),
-			y: Math.floor(Math.random() * GRID_SIZE),
-		};
-
-		const isBlocked = isPositionBlocked(newPosition.x, newPosition.y);
-
-		if (!isBlocked) {
-			return newPosition;
-		} else {
-			return generateRandomPosition();
-		}
-	}, []);
+	const generateRandomPosition = useCallback(
+		(excludePos: { x: number; y: number }) => {
+			let newPos;
+			let attempts = 0;
+			do {
+				newPos = {
+					x: Math.floor(Math.random() * GRID_SIZE),
+					y: Math.floor(Math.random() * GRID_SIZE),
+				};
+				attempts++;
+				// Prevent infinite loop
+				if (attempts > 50) {
+					console.warn("Could not find valid position after 50 attempts");
+					break;
+				}
+			} while (
+				(newPos.x === excludePos.x && newPos.y === excludePos.y) ||
+				BLOCKED_GRID.includes(`${newPos.x},${newPos.y}`)
+			);
+			return newPos;
+		},
+		[]
+	);
 
 	const startGame = () => {
 		setGameState("playing");
