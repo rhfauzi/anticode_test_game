@@ -12,6 +12,11 @@ export default function TileGame() {
 	const [playerPosition, setPlayerPosition] = useState({ x: 0, y: 0 });
 	const [targetPosition, setTargetPosition] = useState({ x: 4, y: 4 });
 
+	// Check if a position is blocked
+	const isPositionBlocked = useCallback((x: number, y: number) => {
+		return BLOCKED_GRID.includes(`${x},${y}`);
+	}, []);
+
 	const formatTime = (seconds: number) => {
 		const mins = Math.floor(seconds / 60);
 		const secs = seconds % 60;
@@ -19,7 +24,7 @@ export default function TileGame() {
 	};
 
 	// Generate random position
-	const generateRandomPosition = () => {
+	const generateRandomPosition = useCallback(() => {
 		const newPosition = {
 			x: Math.floor(Math.random() * GRID_SIZE),
 			y: Math.floor(Math.random() * GRID_SIZE),
@@ -35,7 +40,7 @@ export default function TileGame() {
 		} else {
 			return generateRandomPosition();
 		}
-	};
+	}, [playerPosition, isPositionBlocked]);
 
 	const startGame = () => {
 		setGameState("playing");
@@ -46,28 +51,37 @@ export default function TileGame() {
 	};
 
 	// Fungsi untuk menggerakkan player / set new player position
-	const movePlayer = (x: number, y: number) => {
-		if (gameState === "playing") {
-			const newX = Math.max(0, Math.min(GRID_SIZE - 1, playerPosition.x + x));
-			const newY = Math.max(0, Math.min(GRID_SIZE - 1, playerPosition.y + y));
+	const movePlayer = useCallback(
+		(x: number, y: number) => {
+			if (gameState === "playing") {
+				const newX = Math.max(0, Math.min(GRID_SIZE - 1, playerPosition.x + x));
+				const newY = Math.max(0, Math.min(GRID_SIZE - 1, playerPosition.y + y));
 
-			const newPos = { x: newX, y: newY };
+				const newPos = { x: newX, y: newY };
 
-			// Check if the target position is blocked
-			if (!isPositionBlocked(newX, newY)) {
-				// Check if player reached target
-				if (newX === targetPosition.x && newY === targetPosition.y) {
-					setScore((prev) => prev + 1);
-					setTargetPosition(generateRandomPosition());
+				// Check if the target position is blocked
+				if (!isPositionBlocked(newX, newY)) {
+					// Check if player reached target
+					if (newX === targetPosition.x && newY === targetPosition.y) {
+						setScore((prev) => prev + 1);
+						setTargetPosition(generateRandomPosition());
+					}
+
+					// Update player position
+					setPlayerPosition(newPos);
 				}
-
-				// Update player position
-				setPlayerPosition(newPos);
+			} else {
+				return;
 			}
-		} else {
-			return;
-		}
-	};
+		},
+		[
+			gameState,
+			playerPosition,
+			targetPosition,
+			generateRandomPosition,
+			isPositionBlocked,
+		]
+	);
 
 	// Fungsi untuk menggerakkan player dengan keyboard arrow
 	useEffect(() => {
@@ -98,14 +112,9 @@ export default function TileGame() {
 		return () => window.removeEventListener("keydown", handleKeyPress);
 	}, [movePlayer, gameState]);
 
-	// Check if a position is blocked
-	const isPositionBlocked = useCallback((x: number, y: number) => {
-		return BLOCKED_GRID.includes(`${x},${y}`);
-	}, []);
-
 	// Timer
 	useEffect(() => {
-		let interval: any;
+		let interval: ReturnType<typeof setTimeout>;
 		if (gameState === "playing" && timeLeft > 0) {
 			interval = setInterval(() => {
 				setTimeLeft((prev) => {
